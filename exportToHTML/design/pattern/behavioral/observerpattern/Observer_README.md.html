@@ -1,0 +1,756 @@
+<html>
+<head>
+<title>Observer_README.md</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #727072;}
+.s1 { color: #fcfcfa;}
+.s2 { color: #fcfcfa;}
+.s3 { color: #ff6188; font-style: italic;}
+.s4 { color: #f59762;}
+.s5 { color: #a9dc76; font-style: italic;}
+.s6 { color: #f59762; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#2d2a2e">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Observer_README.md</font>
+</center></td></tr></table>
+<pre><span class="s0"># </span><span class="s2">Observer Pattern</span>
+
+<span class="s0">## </span><span class="s2">Category</span>
+
+<span class="s2">Behavioral Design Pattern</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Definition</span>
+
+<span class="s2">The Observer Pattern defines a one-to-many dependency between objects so that when one object changes its state, all its dependents are automatically updated.</span>
+
+<span class="s2">In simple words</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">ONE changes</span>
+    <span class="s1">↓</span>
+<span class="s1">MANY get updated</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Real-Life Analogy</span>
+
+<span class="s2">Think of a YouTube Channel.</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">YouTube Channel</span>
+      <span class="s1">|</span>
+      <span class="s1">| New Video Uploaded</span>
+      <span class="s1">|</span>
+      <span class="s1">+--&gt; Subscriber 1</span>
+      <span class="s1">+--&gt; Subscriber 2</span>
+      <span class="s1">+--&gt; Subscriber 3</span>
+<span class="s3">```</span>
+
+<span class="s2">Whenever a new video is uploaded, all subscribers receive notifications automatically.</span>
+
+<span class="s2">The channel doesn't know anything about subscribers except that they are subscribed.</span>
+
+<span class="s2">This is exactly how Observer Pattern works.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Why Do We Need It?</span>
+
+<span class="s0">## </span><span class="s2">Bad Design</span>
+
+<span class="s2">Imagine a blog application.</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public void publishPost(String post){</span>
+
+    <span class="s1">emailService.send(post);</span>
+
+    <span class="s1">smsService.send(post);</span>
+
+    <span class="s1">pushNotification.send(post);</span>
+
+    <span class="s1">auditService.log(post);</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">### </span><span class="s2">Problems</span>
+
+<span class="s2">Every time a new notification service is added</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">whatsappService.send(post);</span>
+<span class="s3">```</span>
+
+<span class="s2">You must modify existing code.</span>
+
+<span class="s2">Again</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">slackService.send(post);</span>
+<span class="s3">```</span>
+
+<span class="s2">Modify again.</span>
+
+<span class="s2">Again</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">teamsService.send(post);</span>
+<span class="s3">```</span>
+
+<span class="s2">Modify again.</span>
+
+<span class="s2">This violates</span><span class="s1">:</span>
+
+<span class="s0">## </span><span class="s2">Open Closed Principle </span><span class="s1">(</span><span class="s2">OCP</span><span class="s1">)</span>
+
+<span class="s5">&gt; </span><span class="s2">Software entities should be open for extension but closed for modification.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Solution</span>
+
+<span class="s2">Instead of directly calling services</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Blog Publisher</span>
+      <span class="s1">|</span>
+      <span class="s1">+--&gt; Observer</span>
+      <span class="s1">+--&gt; Observer</span>
+      <span class="s1">+--&gt; Observer</span>
+<span class="s3">```</span>
+
+<span class="s2">Publisher only updates observers.</span>
+
+<span class="s2">Observers decide what to do.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">UML Diagram</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+                <span class="s1">+----------------+</span>
+                <span class="s1">|    Subject     |</span>
+                <span class="s1">+----------------+</span>
+                <span class="s1">| addObserver()  |</span>
+                <span class="s1">| removeObserver()|</span>
+                <span class="s1">| updateObservers()|</span>
+                <span class="s1">+--------+-------+</span>
+                         <span class="s1">|</span>
+                         <span class="s1">|</span>
+        <span class="s1">---------------------------------</span>
+        <span class="s1">|               |               |</span>
+        <span class="s1">v               v               v</span>
+
+  <span class="s1">+------------+  +------------+  +------------+</span>
+  <span class="s1">| Observer   |  | Observer   |  | Observer   |</span>
+  <span class="s1">+------------+  +------------+  +------------+</span>
+  <span class="s1">| update()   |  | update()   |  | update()   |</span>
+  <span class="s1">+------------+  +------------+  +------------+</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Participants</span>
+
+<span class="s0">## </span><span class="s2">Subject </span><span class="s1">(</span><span class="s2">Publisher</span><span class="s1">)</span>
+
+<span class="s2">Maintains observer list.</span>
+
+<span class="s2">Responsibilities</span><span class="s1">:</span>
+
+<span class="s6">* </span><span class="s2">Register Observer</span>
+<span class="s6">* </span><span class="s2">Remove Observer</span>
+<span class="s6">* </span><span class="s2">Update Observers</span>
+
+<span class="s2">Examples</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">BlogPublisher</span>
+<span class="s1">PolicyService</span>
+<span class="s1">StockMarket</span>
+<span class="s1">WeatherStation</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Observer</span>
+
+<span class="s2">Receives updates.</span>
+
+<span class="s2">Examples</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">EmailNotification</span>
+<span class="s1">SMSNotification</span>
+<span class="s1">AuditNotification</span>
+<span class="s1">DashboardNotification</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Implementation</span>
+
+<span class="s0">## </span><span class="s2">Observer Interface</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public interface Observer {</span>
+
+    <span class="s1">void update(String message);</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Subject Interface</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public interface Subject {</span>
+
+    <span class="s1">void subscribe(Observer observer);</span>
+
+    <span class="s1">void unsubscribe(Observer observer);</span>
+
+    <span class="s1">void updateObservers();</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Email Observer</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public class EmailSubscriber implements Observer {</span>
+
+    <span class="s1">private String name;</span>
+
+    <span class="s1">public EmailSubscriber(String name){</span>
+        <span class="s1">this.name = name;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s1">public void update(String message) {</span>
+        <span class="s1">System.out.println(</span>
+                <span class="s1">name + &quot; received: &quot; + message</span>
+        <span class="s1">);</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Blog Publisher</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">import java.util.ArrayList;</span>
+<span class="s1">import java.util.List;</span>
+
+<span class="s1">public class BlogPublisher implements Subject {</span>
+
+    <span class="s1">private List&lt;Observer&gt; observers =</span>
+            <span class="s1">new ArrayList&lt;&gt;();</span>
+
+    <span class="s1">private String latestPost;</span>
+
+    <span class="s1">@Override</span>
+    <span class="s1">public void subscribe(Observer observer) {</span>
+        <span class="s1">observers.add(observer);</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s1">public void unsubscribe(Observer observer) {</span>
+        <span class="s1">observers.remove(observer);</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s1">public void updateObservers() {</span>
+
+        <span class="s1">for(Observer observer : observers){</span>
+            <span class="s1">observer.update(latestPost);</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s1">public void publishPost(String post){</span>
+
+        <span class="s1">this.latestPost = post;</span>
+
+        <span class="s1">System.out.println(</span>
+                <span class="s1">&quot;New Blog Published : &quot; + post</span>
+        <span class="s1">);</span>
+
+        <span class="s1">updateObservers();</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Client</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public class Main {</span>
+
+    <span class="s1">public static void main(String[] args) {</span>
+
+        <span class="s1">BlogPublisher blog =</span>
+                <span class="s1">new BlogPublisher();</span>
+
+        <span class="s1">Observer john =</span>
+                <span class="s1">new EmailSubscriber(&quot;John&quot;);</span>
+
+        <span class="s1">Observer david =</span>
+                <span class="s1">new EmailSubscriber(&quot;David&quot;);</span>
+
+        <span class="s1">blog.subscribe(john);</span>
+        <span class="s1">blog.subscribe(david);</span>
+
+        <span class="s1">blog.publishPost(</span>
+                <span class="s1">&quot;Observer Pattern Tutorial&quot;</span>
+        <span class="s1">);</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Output</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">New Blog Published : Observer Pattern Tutorial</span>
+
+<span class="s1">John received: Observer Pattern Tutorial</span>
+
+<span class="s1">David received: Observer Pattern Tutorial</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">How It Works</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Step 1</span>
+
+<span class="s1">John subscribes</span>
+<span class="s1">David subscribes</span>
+
+<span class="s1">Blog</span>
+ <span class="s1">|</span>
+ <span class="s1">+--&gt; John</span>
+ <span class="s1">|</span>
+ <span class="s1">+--&gt; David</span>
+
+<span class="s1">---------------------</span>
+
+<span class="s1">Step 2</span>
+
+<span class="s1">New Blog Published</span>
+
+<span class="s1">---------------------</span>
+
+<span class="s1">Step 3</span>
+
+<span class="s1">Observers Updated</span>
+
+<span class="s1">---------------------</span>
+
+<span class="s1">Blog -&gt; John</span>
+
+<span class="s1">Blog -&gt; David</span>
+
+<span class="s1">---------------------</span>
+
+<span class="s1">All observers updated</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Production Example</span>
+
+<span class="s0">## </span><span class="s2">Insurance System</span>
+
+<span class="s2">Bandhan Life Example</span>
+
+<span class="s2">When policy gets approved</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Policy Approved</span>
+<span class="s3">```</span>
+
+<span class="s2">Need</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Send Email</span>
+<span class="s1">Send SMS</span>
+<span class="s1">Audit Logging</span>
+<span class="s1">Update Dashboard</span>
+<span class="s1">Notify Agent</span>
+<span class="s3">```</span>
+
+<span class="s2">Architecture</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">PolicyService</span>
+      <span class="s1">|</span>
+      <span class="s1">+--&gt; EmailObserver</span>
+      <span class="s1">+--&gt; SmsObserver</span>
+      <span class="s1">+--&gt; AuditObserver</span>
+      <span class="s1">+--&gt; DashboardObserver</span>
+      <span class="s1">+--&gt; AgentObserver</span>
+<span class="s3">```</span>
+
+<span class="s2">Tomorrow</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">WhatsAppObserver</span>
+<span class="s3">```</span>
+
+<span class="s2">Add new observer.</span>
+
+<span class="s2">No change in PolicyService.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">SOLID Principles</span>
+
+<span class="s0">## </span><span class="s2">Open Closed Principle </span><span class="s1">(</span><span class="s2">OCP</span><span class="s1">)</span>
+
+<span class="s2">Bad</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">if(email)</span>
+<span class="s1">if(sms)</span>
+<span class="s1">if(push)</span>
+<span class="s1">if(whatsapp)</span>
+<span class="s3">```</span>
+
+<span class="s2">Observer</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">Add New Observer</span>
+<span class="s3">```</span>
+
+<span class="s2">No modification.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Dependency Inversion Principle </span><span class="s1">(</span><span class="s2">DIP</span><span class="s1">)</span>
+
+<span class="s2">Bad</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">PolicyService</span>
+      <span class="s1">|</span>
+      <span class="s1">+--&gt; EmailService</span>
+      <span class="s1">+--&gt; SMSService</span>
+<span class="s3">```</span>
+
+<span class="s2">Good</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">PolicyService</span>
+      <span class="s1">|</span>
+      <span class="s1">+--&gt; Observer Interface</span>
+<span class="s3">```</span>
+
+<span class="s2">Depends on abstraction.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Advantages</span>
+
+<span class="s0">## </span><span class="s2">Loose Coupling</span>
+
+<span class="s2">Publisher doesn't know observer implementation.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Easy Extension</span>
+
+<span class="s2">New observers can be added easily.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Reusable</span>
+
+<span class="s2">Observers can be reused.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Event-Driven Design</span>
+
+<span class="s2">Perfect for notifications and events.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Cleaner Code</span>
+
+<span class="s2">No large if-else chains.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Disadvantages</span>
+
+<span class="s0">## </span><span class="s2">Notification Storm</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">1 Event</span>
+  <span class="s1">|</span>
+<span class="s1">1000 Observers</span>
+<span class="s3">```</span>
+
+<span class="s2">Can impact performance.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Hard Debugging</span>
+
+<span class="s2">Not obvious which observer executed.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Memory Leaks</span>
+
+<span class="s2">Forgotten observers remain registered.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Execution Order Issues</span>
+
+<span class="s2">Observer execution order may matter.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Observer vs Pub/Sub</span>
+
+<span class="s0">## </span><span class="s2">Observer Pattern</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Publisher</span>
+    <span class="s1">|</span>
+    <span class="s1">+--&gt; Subscriber</span>
+    <span class="s1">+--&gt; Subscriber</span>
+<span class="s3">```</span>
+
+<span class="s2">Publisher knows subscribers.</span>
+
+<span class="s2">Usually used inside the same application.</span>
+
+<span class="s2">Examples</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Spring Events</span>
+<span class="s1">Java Event Listeners</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Pub/Sub</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Publisher</span>
+     <span class="s1">|</span>
+     <span class="s1">v</span>
+   <span class="s1">Kafka</span>
+     <span class="s1">|</span>
+     <span class="s1">+--&gt; Consumer</span>
+     <span class="s1">+--&gt; Consumer</span>
+<span class="s3">```</span>
+
+<span class="s2">Publisher doesn't know consumers.</span>
+
+<span class="s2">Consumers don't know publisher.</span>
+
+<span class="s2">Used in distributed systems and microservices.</span>
+
+<span class="s2">Examples</span><span class="s1">:</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Kafka</span>
+<span class="s1">RabbitMQ</span>
+<span class="s1">AWS SNS</span>
+<span class="s1">Redis Pub/Sub</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Spring Boot Example</span>
+
+<span class="s2">Observer Pattern is heavily used in Spring.</span>
+
+<span class="s0">## </span><span class="s2">Event</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">public class PolicyApprovedEvent {</span>
+
+    <span class="s1">private Long policyId;</span>
+
+    <span class="s1">public PolicyApprovedEvent(Long policyId) {</span>
+        <span class="s1">this.policyId = policyId;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Publisher</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">@Autowired</span>
+<span class="s1">private ApplicationEventPublisher publisher;</span>
+
+<span class="s1">publisher.publishEvent(</span>
+        <span class="s1">new PolicyApprovedEvent(1001L)</span>
+<span class="s1">);</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Observer</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">@EventListener</span>
+<span class="s1">public void sendEmail(</span>
+        <span class="s1">PolicyApprovedEvent event) {</span>
+
+    <span class="s1">System.out.println(&quot;Email Sent&quot;);</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Another Observer</span>
+
+<span class="s3">```</span><span class="s4">java</span>
+<span class="s1">@EventListener</span>
+<span class="s1">public void sendSMS(</span>
+        <span class="s1">PolicyApprovedEvent event) {</span>
+
+    <span class="s1">System.out.println(&quot;SMS Sent&quot;);</span>
+<span class="s1">}</span>
+<span class="s3">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Interview Questions</span>
+
+<span class="s0">## </span><span class="s2">What is Observer Pattern?</span>
+
+<span class="s2">Observer Pattern is a behavioral design pattern that establishes a one-to-many relationship between a subject and observers. Whenever the subject changes state, all registered observers are updated automatically.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">When should you use Observer Pattern?</span>
+
+<span class="s2">When multiple objects need to react to a change in another object.</span>
+
+<span class="s2">Examples</span><span class="s1">:</span>
+
+<span class="s6">* </span><span class="s2">Notification Systems</span>
+<span class="s6">* </span><span class="s2">Event Handling</span>
+<span class="s6">* </span><span class="s2">Stock Price Updates</span>
+<span class="s6">* </span><span class="s2">Weather Monitoring</span>
+<span class="s6">* </span><span class="s2">UI Event Listeners</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Which SOLID principles does it support?</span>
+
+<span class="s6">* </span><span class="s2">Open Closed Principle </span><span class="s1">(</span><span class="s2">OCP</span><span class="s1">)</span>
+<span class="s6">* </span><span class="s2">Dependency Inversion Principle </span><span class="s1">(</span><span class="s2">DIP</span><span class="s1">)</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Difference between Observer and Pub/Sub?</span>
+
+<span class="s2">Observer works inside the same application and the publisher knows subscribers.</span>
+
+<span class="s2">Pub/Sub uses a broker such as Kafka or RabbitMQ and provides complete decoupling.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Real-world examples?</span>
+
+<span class="s6">* </span><span class="s2">Spring Application Events</span>
+<span class="s6">* </span><span class="s2">YouTube Subscribers</span>
+<span class="s6">* </span><span class="s2">Email Notifications</span>
+<span class="s6">* </span><span class="s2">Stock Market Updates</span>
+<span class="s6">* </span><span class="s2">Weather Stations</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Memory Tricks</span>
+
+<span class="s0">## </span><span class="s2">Trick 1</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">ONE changes</span>
+    <span class="s1">↓</span>
+<span class="s1">MANY update</span>
+<span class="s3">```</span>
+
+<span class="s2">Observer Pattern.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Trick 2</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">YouTube Channel</span>
+       <span class="s1">↓</span>
+<span class="s1">Subscribers</span>
+<span class="s3">```</span>
+
+<span class="s2">Observer Pattern.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s2">Trick 3</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Policy Approved</span>
+       <span class="s1">↓</span>
+<span class="s1">Email</span>
+<span class="s1">SMS</span>
+<span class="s1">Audit</span>
+<span class="s1">Dashboard</span>
+<span class="s3">```</span>
+
+<span class="s2">Observer Pattern.</span>
+
+<span class="s0">---</span>
+
+<span class="s0"># </span><span class="s2">Quick Revision</span>
+
+<span class="s3">```</span><span class="s4">text</span>
+<span class="s1">Observer Pattern</span>
+
+<span class="s1">Subject</span>
+   <span class="s1">↓</span>
+<span class="s1">Observers</span>
+   <span class="s1">↓</span>
+<span class="s1">update()</span>
+
+<span class="s1">ONE → MANY</span>
+
+<span class="s1">Subscribe → Update</span>
+
+<span class="s1">Object → Object Communication</span>
+
+<span class="s1">Examples:</span>
+<span class="s1">- Event Listeners</span>
+<span class="s1">- Notifications</span>
+<span class="s1">- Spring Events</span>
+<span class="s1">- UI Updates</span>
+<span class="s1">- Stock Price Updates</span>
+<span class="s1">- Weather Station Updates</span>
+<span class="s3">```</span>
+</pre>
+</body>
+</html>
